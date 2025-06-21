@@ -1,15 +1,14 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../logic/bloc/internet_status/internet_status_bloc.dart';
 import '/data/models/repo_item/owner_model.dart';
 import '/presentation/routes/route_names.dart';
 import '/presentation/widgets/circle_image.dart';
 import '/presentation/widgets/custom_text.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../data/models/repo_item/repo_item_model.dart';
 import '../../../logic/cubit/repo_search/repo_search_cubit.dart';
-import '../../utils/k_images.dart';
 import '../../utils/utils.dart';
-import '../../widgets/custom_app_bar.dart';
 import '../../widgets/empty_widget.dart';
 import '../../widgets/fetch_error_text.dart';
 import '../../widgets/loading_widget.dart';
@@ -51,37 +50,53 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
         onRefresh: () async {
           repoCubit.getRepoSearchList();
         },
-        child: BlocConsumer<RepoSearchCubit, OwnerModel>(
-          listener: (context, service) {
-            final state = service.repoState;
-            if (state is RepoSearchError) {
-              if (state.statusCode == 503) {
-                repoCubit.getRepoSearchList();
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<InternetStatusBloc, InternetStatusState>(
+              listener: (context, state) {
+                 if (state is InternetStatusLostState) {
+                   Utils.errorSnackBar(context, state.message,2000);
+                  } else if (state is InternetStatusBackState) {
+                    Utils.showSnackBar(context, state.message);
+                  }
+
+              },
+            ),
+            BlocListener<RepoSearchCubit, OwnerModel>(
+              listener: (context, service) {
+                final state = service.repoState;
+                if (state is RepoSearchError) {
+                  if (state.statusCode == 503) {
+                    repoCubit.getRepoSearchList();
+                  }
+                }
+              },
+            ),
+          ],
+          child: BlocBuilder<RepoSearchCubit, OwnerModel>(
+            builder: (context, service) {
+              final state = service.repoState;
+              if (state is RepoSearchLoading) {
+                return const LoadingWidget();
+              } else if (state is RepoSearchError) {
+                if (state.statusCode == 503) {
+                  return LoadedRepoItems(items: repoCubit.repositories);
+                } else if (state.statusCode == 403) {
+                  return LoadedRepoItems(items: repoCubit.repositories);
+                } else {
+                  return FetchErrorText(text: state.message);
+                }
+              } else if (state is RepoSearchLoaded) {
+                return LoadedRepoItems(items: state.repositories);
               }
-            }
-          },
-          builder: (context, service) {
-            final state = service.repoState;
-            if (state is RepoSearchLoading) {
-              return const LoadingWidget();
-            } else if (state is RepoSearchError) {
-              if (state.statusCode == 503) {
-                return LoadedRepoItems(items: repoCubit.repositories);
-              } else if (state.statusCode == 403) {
+              if (repoCubit.repositories?.isNotEmpty ?? false) {
                 return LoadedRepoItems(items: repoCubit.repositories);
               } else {
-                return FetchErrorText(text: state.message);
+                return EmptyWidget(
+                    image: '', text: 'No Result found', isSliver: false);
               }
-            } else if (state is RepoSearchLoaded) {
-              return LoadedRepoItems(items: state.repositories);
-            }
-            if (repoCubit.repositories?.isNotEmpty ?? false) {
-              return LoadedRepoItems(items: repoCubit.repositories);
-            } else {
-              return EmptyWidget(
-                  image: '', text: 'No Result found', isSliver: false);
-            }
-          },
+            },
+          ),
         ),
       ),
     );

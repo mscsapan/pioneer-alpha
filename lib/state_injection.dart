@@ -35,7 +35,6 @@ class StateInject {
   ];
 
   static final blocProviders = <BlocProvider>[
-
     BlocProvider<InternetStatusBloc>(create: (context) => InternetStatusBloc()),
 
     BlocProvider<RepoSearchCubit>(

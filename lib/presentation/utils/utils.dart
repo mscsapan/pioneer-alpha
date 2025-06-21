@@ -293,12 +293,13 @@ class Utils {
     );
   }
 
-  static void errorSnackBar(BuildContext context, String errorMsg) {
+  static void errorSnackBar(BuildContext context, String errorMsg,[int duration = 1500]) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(errorMsg, style: const TextStyle(color: Colors.red)),
+          duration: Duration(milliseconds: duration),
+          content: CustomText(text:errorMsg,color: redColor),
         ),
       );
   }
@@ -306,8 +307,9 @@ class Utils {
   static void showSnackBar(BuildContext context, String msg,
       [Color textColor = whiteColor, int time = 1000]) {
     final snackBar = SnackBar(
-        duration: Duration(milliseconds: time),
-        content: Text(msg, style: TextStyle(color: textColor)));
+      duration: Duration(milliseconds: time),
+      content: CustomText(text:msg,color: textColor),
+    );
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(snackBar);
