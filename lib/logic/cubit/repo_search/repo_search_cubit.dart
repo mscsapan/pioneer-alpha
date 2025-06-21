@@ -18,7 +18,12 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
       : _repository = repository,
         super(OwnerModel());
 
+  bool isDescending = true;
+
   List<RepoItemModel> ? repositories = [];
+
+  List<RepoItemModel> ? tempRepos = [];
+
   OwnerDetail ? detail;
 
   void addType(String name)=>emit(state.copyWith(userViewType: name));
@@ -50,6 +55,20 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
     );
   }
 
+  void filterRepoByStar() {
+    if (repositories == null || (repositories?.isEmpty??false)) return;
+    // debugPrint('true-value $isDescending');
+    isDescending = !isDescending;
+    // debugPrint('false-value $isDescending');
+
+    tempRepos = List<RepoItemModel>.from(repositories??[]);
+
+    tempRepos?.sort((a, b) => isDescending ? b.stargazersCount.compareTo(a.stargazersCount) : a.stargazersCount.compareTo(b.stargazersCount));
+
+    emit(state.copyWith(repoState: RepoSearchLoaded(tempRepos)));
+  }
+
+
 
   Future<void> getOwnerDetail() async {
 
@@ -71,6 +90,7 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
       },
     );
   }
+
 
   void initPage() {
     emit(state.copyWith(initialPage: 1, isListEmpty: false));

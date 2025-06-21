@@ -44,7 +44,12 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: CustomText(text: 'All Flutter'),
-          automaticallyImplyLeading: false),
+          automaticallyImplyLeading: false,actions: [
+            IconButton(
+              icon: const Icon(Icons.sort),
+              onPressed: () => repoCubit.filterRepoByStar(),
+            ),
+        ],),
       // appBar: CustomGradientAppBar(title: 'Quote Request',isShowBB: widget.isShow,actions:  FilterQuote(),),
       body: PageRefresh(
         onRefresh: () async {
