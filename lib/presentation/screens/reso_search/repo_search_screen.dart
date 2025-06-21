@@ -47,7 +47,11 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
           automaticallyImplyLeading: false,actions: [
             IconButton(
               icon: const Icon(Icons.sort),
-              onPressed: () => repoCubit.filterRepoByStar(),
+              onPressed: () => repoCubit.sortRepos(SortBy.stars),
+            ),
+          IconButton(
+              icon: const Icon(Icons.access_time),
+              onPressed: () => repoCubit.sortRepos(SortBy.updated),
             ),
         ],),
       // appBar: CustomGradientAppBar(title: 'Quote Request',isShowBB: widget.isShow,actions:  FilterQuote(),),

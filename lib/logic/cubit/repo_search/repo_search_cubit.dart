@@ -55,15 +55,28 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
     );
   }
 
-  void filterRepoByStar() {
+
+
+
+  void sortRepos(SortBy sortBy) {
     if (repositories == null || (repositories?.isEmpty??false)) return;
-    // debugPrint('true-value $isDescending');
+
     isDescending = !isDescending;
-    // debugPrint('false-value $isDescending');
 
     tempRepos = List<RepoItemModel>.from(repositories??[]);
-
-    tempRepos?.sort((a, b) => isDescending ? b.stargazersCount.compareTo(a.stargazersCount) : a.stargazersCount.compareTo(b.stargazersCount));
+    tempRepos?.sort((a, b) {
+      int comparison;
+      if (sortBy == SortBy.stars) {
+        comparison = a.stargazersCount.compareTo(b.stargazersCount);
+        //final starFilter = tempRepos?.map((e)=>e.stargazersCount).toList();
+        // debugPrint('starFilter $starFilter');
+      } else {
+        comparison = a.updatedAt.compareTo(b.updatedAt);
+        //final updateFilter = tempRepos?.map((e)=>e.updatedAt).toList();
+        // debugPrint('updateFilter $updateFilter');
+      }
+      return isDescending ? -comparison : comparison;
+    });
 
     emit(state.copyWith(repoState: RepoSearchLoaded(tempRepos)));
   }
@@ -96,3 +109,5 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
     emit(state.copyWith(initialPage: 1, isListEmpty: false));
   }
 }
+
+enum SortBy { stars, updated }
