@@ -19,32 +19,3 @@ const kDuration = Duration(microseconds: 300);
 
 const Color transparent = Colors.transparent;
 const double dialogHeight = 270.0;
-
-///custom fonts
-const String bold400 = 'Regular400';
-const String bold500 = 'Regular500';
-const String bold700 = 'Bold700';
-
-///gradient colors
-const buttonGradient = LinearGradient(
-  begin: Alignment(0.00, -1.00),
-  end: Alignment(0, 1),
-  colors: [Color(0xFF885DF1), Color(0xFF6610F2)],
-);
-
-const activeTabButtonGradient = LinearGradient(
-  begin: Alignment(0.00, -1.00),
-  end: Alignment(0, 1),
-  colors: [Color(0xFFFFC107), Color(0xFFFD7E14)],
-);
-const inactiveTabButtonGradient = LinearGradient(
-  begin: Alignment(0.00, -1.00),
-  end: Alignment(0, 1),
-  colors: [Colors.white, whiteColor],
-);
-
-const dialogCircleGradient = LinearGradient(
-  begin: Alignment(0.00, -1.00),
-  end: Alignment(0, 1),
-  colors: [Color(0xFFFFC107), Color(0xFFFD7E14)],
-);

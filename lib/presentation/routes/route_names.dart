@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../screens/reso_search/repo_detail_screen.dart';
 import '../screens/reso_search/repo_search_screen.dart';
-import '../screens/reso_search/repo_web_screen.dart';
+
 import 'route_packages_name.dart';
 
 class RouteNames {
 
   static const String reposListScreen = '/reposListScreen';
   static const String reposDetailScreen = '/reposDetailScreen';
-  static const String repoWebScreen = '/repoWebScreen';
 
 
   static Route<dynamic> generateRoutes(RouteSettings settings) {
@@ -22,11 +21,6 @@ class RouteNames {
         case RouteNames.reposDetailScreen:
         return MaterialPageRoute(
             settings: settings, builder: (_) => const RepoDetailScreen());
-
-        case RouteNames.repoWebScreen:
-          final url = settings.arguments as String;
-        return MaterialPageRoute(
-            settings: settings, builder: (_) =>  RepoWebScreen(url: url));
 
 
       default:

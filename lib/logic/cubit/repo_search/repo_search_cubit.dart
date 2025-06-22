@@ -83,7 +83,6 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
 
   Future<void> getRepoSearchListFromCache() async {
 
-    // debugPrint('called getRepoSearchListFromCache');
     // emit(state.copyWith(repoState: const RepoSearchLoading()));
 
     final prefs = await SharedPreferences.getInstance();
@@ -104,17 +103,12 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
 
       repositories = decoded.map((json) => RepoItemModel.fromJson(json)).toList();
 
-      // final imgs = repositories?.map((e) => e.owner?.avatarUrl).toList();
-      // debugPrint('caches imgs: $imgs');
-
-      // final loaded = RepoSearchLoaded(repositories);
-      // emit(state.copyWith(isDescending: cacheDescending, sortBy: updatedAt ,repoState: loaded));
 
       emit(state.copyWith(isDescending: cacheDescending, sortBy: updatedAt));
 
       sortRepos(updatedAt);
     } else {
-      emit(state.copyWith(repoState: RepoSearchError('No cached data found', 404)));
+      emit(state.copyWith(repoState: RepoSearchError('', 404)));
     }
   }
 

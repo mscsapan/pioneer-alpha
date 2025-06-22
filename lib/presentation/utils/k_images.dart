@@ -4,4 +4,5 @@ class KImages {
   static const String defaultImg = 'assets/images/default_image.png';
 
   static const String emptyRepo = 'assets/images/empty_repo.png';
+  static const String noInternet = 'assets/images/no_internet.png';
 }

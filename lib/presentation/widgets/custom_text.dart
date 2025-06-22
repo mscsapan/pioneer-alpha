@@ -19,7 +19,6 @@ class CustomText extends StatelessWidget {
     this.overflow = TextOverflow.ellipsis,
     this.textAlign = TextAlign.start,
     this.isRoboto = true,
-    this.fontFamily = bold700,
   });
   final String text;
   final Color color;
@@ -32,7 +31,6 @@ class CustomText extends StatelessWidget {
   final TextOverflow overflow;
   final TextDecoration decoration;
   final bool isRoboto;
-  final String fontFamily;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +62,6 @@ class CustomText extends StatelessWidget {
           fontWeight: fontWeight,
           fontSize: fontSize.sp,
           color: color,
-          fontFamily: fontFamily,
           height: height.h,
           decoration: decoration,
             decorationColor: decorationColor?? blackColor

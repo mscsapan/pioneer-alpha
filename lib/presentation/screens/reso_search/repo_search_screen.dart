@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pioneer_alpha/presentation/widgets/custom_image.dart';
 
 import '/data/models/repo_item/owner_model.dart';
 import '/presentation/routes/route_names.dart';
@@ -43,81 +47,112 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: CustomText(text: 'All Repositories',fontWeight: FontWeight.w600,fontSize: 16.0),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (!didPop) {
+          if (Platform.isAndroid) {
+            SystemNavigator.pop();
+          } else if (Platform.isIOS) {
+            exit(0);
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: CustomText(text: 'All Repositories',fontWeight: FontWeight.w600,fontSize: 16.0),
           automaticallyImplyLeading: false,actions: [
-            IconButton(
-              tooltip: 'Sort by stars',
-              // icon: Icon(Icons.star, color: Colors.amber),
-              icon: _buildSortIcon(SortBy.stars),
-              onPressed: () => repoCubit.sortRepos(SortBy.stars,toggle: true),
-            ),
-            IconButton(
-              tooltip: 'Sort by updated time',
-              // icon: Icon(Icons.update),
-              icon: _buildSortIcon(SortBy.updated),
-              onPressed: () => repoCubit.sortRepos(SortBy.updated,toggle: true),
-            ),
+
+            BlocBuilder<RepoSearchCubit, OwnerModel>(
+              builder: (context, state) {
+               return Row(
+                  children: [
+                    if(repoCubit.repositories?.isNotEmpty ?? false)...[
+                      IconButton(
+                        tooltip: 'Sort by stars',
+                        // icon: Icon(Icons.star, color: Colors.amber),
+                        icon: _buildSortIcon(SortBy.stars),
+                        onPressed: () =>
+                            repoCubit.sortRepos(SortBy.stars, toggle: true),
+                      ),
+                      IconButton(
+                        tooltip: 'Sort by updated time',
+                        // icon: Icon(Icons.update),
+                        icon: _buildSortIcon(SortBy.updated),
+                        onPressed: () =>
+                            repoCubit.sortRepos(SortBy.updated, toggle: true),
+                      ),
+                    ],
+                  ],
+               );
+              },
+            )
+
+
           ],),
-      // appBar: CustomGradientAppBar(title: 'Quote Request',isShowBB: widget.isShow,actions:  FilterQuote(),),
-      body: PageRefresh(
-        onRefresh:  ()  async {
-          repoCubit..initState()..getRepoSearchList();
-          // repoCubit.loadOnlineOfflineRepo();
-        },
-        child: MultiBlocListener(
-          listeners: [
-            BlocListener<InternetStatusBloc, InternetStatusState>(
-              listener: (context, state) {
-                 if (state is InternetStatusLostState) {
-                   // Utils.errorSnackBar(context, state.message,2000);
-                   repoCubit.addConnectionType(false);
+        body: PageRefresh(
+          onRefresh:  ()  async {
+            repoCubit..initState()..getRepoSearchList();
+            // repoCubit.loadOnlineOfflineRepo();
+          },
+          child: MultiBlocListener(
+            listeners: [
+              BlocListener<InternetStatusBloc, InternetStatusState>(
+                listener: (context, state) {
+                  if (state is InternetStatusLostState) {
+                    // Utils.errorSnackBar(context, state.message,2000);
+                    repoCubit.addConnectionType(false);
                   } else if (state is InternetStatusBackState) {
-                   repoCubit.addConnectionType(true);
+                    repoCubit.addConnectionType(true);
                     // Utils.showSnackBar(context, state.message);
                   }
 
-              },
-            ),
-            BlocListener<RepoSearchCubit, OwnerModel>(
-              listener: (context, service) {
+                },
+              ),
+              BlocListener<RepoSearchCubit, OwnerModel>(
+                listener: (context, service) {
+                  final state = service.repoState;
+                  if (state is RepoSearchError) {
+                    if (state.statusCode == 503) {
+                      repoCubit.getRepoSearchList();
+                    }
+                    if (state.statusCode == 10061) {
+                      Utils.errorSnackBar(context, state.message);
+                    }
+                    if (state.statusCode == 404 && state.message.isEmpty && service.siteAdmin) {
+                      repoCubit..initState()..getRepoSearchList();
+                    }
+                  }
+                },
+              ),
+            ],
+            child: BlocBuilder<RepoSearchCubit, OwnerModel>(
+              builder: (context, service) {
                 final state = service.repoState;
-                if (state is RepoSearchError) {
+                if (state is RepoSearchLoading) {
+                  return const LazyLoading();
+                  // return const LoadingWidget();
+                } else if (state is RepoSearchError) {
                   if (state.statusCode == 503) {
-                    repoCubit.getRepoSearchList();
+                    return LoadedRepoItems(items: repoCubit.repositories);
+                  } else if (state.statusCode == 403) {
+                    return LoadedRepoItems(items: repoCubit.repositories);
+                  } else if(state.statusCode == 10061) {
+                    return LoadedRepoItems(items: repoCubit.repositories);
+                  }else if(state.statusCode == 404 && state.message.isEmpty) {
+                    return Center(child: CustomImage(path: KImages.noInternet));
+                  }else{
+                    return FetchErrorText(text: state.message);
                   }
-                  if (state.statusCode == 10061) {
-                    Utils.errorSnackBar(context, state.message);
-                  }
+                } else if (state is RepoSearchLoaded) {
+                  return LoadedRepoItems(items: state.repositories);
+                }
+                if (repoCubit.repositories?.isNotEmpty ?? false) {
+                  return LoadedRepoItems(items: repoCubit.repositories);
+                } else {
+                  return EmptyWidget(image: KImages.emptyRepo, text: 'No Result found', isSliver: false);
                 }
               },
             ),
-          ],
-          child: BlocBuilder<RepoSearchCubit, OwnerModel>(
-            builder: (context, service) {
-              final state = service.repoState;
-              if (state is RepoSearchLoading) {
-                return const LazyLoading();
-                // return const LoadingWidget();
-              } else if (state is RepoSearchError) {
-                if (state.statusCode == 503) {
-                  return LoadedRepoItems(items: repoCubit.repositories);
-                } else if (state.statusCode == 403) {
-                  return LoadedRepoItems(items: repoCubit.repositories);
-                } else if(state.statusCode == 10061) {
-                  return LoadedRepoItems(items: repoCubit.repositories);
-                }else{
-                  return FetchErrorText(text: state.message);
-                }
-              } else if (state is RepoSearchLoaded) {
-                return LoadedRepoItems(items: state.repositories);
-              }
-              if (repoCubit.repositories?.isNotEmpty ?? false) {
-                return LoadedRepoItems(items: repoCubit.repositories);
-              } else {
-                return EmptyWidget(image: KImages.emptyRepo, text: 'No Result found', isSliver: false);
-              }
-            },
           ),
         ),
       ),
@@ -193,13 +228,20 @@ class LoadedRepoItems extends StatelessWidget {
                           children: [
                             Flexible(child: CustomText(text: result?.name??'',fontSize: 16.0,fontWeight: FontWeight.w600,maxLine: 2)),
                             Row(
+                              spacing: 4.0,
                               children: [
                                 Icon(Icons.star,size: 18.0,color: Colors.amber),
                                 CustomText(text: Utils.priceSeparator(result?.stargazersCount??0),fontWeight: FontWeight.w500),
-                                // CustomText(text: '${result?.stargazersCount}'),
                               ],
                             ),
-                            // CustomText(text: '${result?.owner?.name}'),
+                            Row(
+
+                              spacing: 4.0,
+                              children: [
+                                Icon(Icons.update,size: 18.0,color: Colors.grey),
+                                CustomText(text: Utils.timeWithData(result?.updatedAt??'')),                              ],
+                            ),
+
                           ],
                         ),
                       ),
