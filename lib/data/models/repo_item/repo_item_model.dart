@@ -414,12 +414,15 @@ class RepoItemModel extends Equatable {
       'watchers': watchers,
       'default_branch': defaultBranch,
       'score': score,
+      'owner': owner?.toMap(),
+      'license': license?.toMap(),
+      'topics': topics?.map((x) => x).toList(),
     };
   }
 
   factory RepoItemModel.fromMap(Map<String, dynamic> map) {
     return RepoItemModel(
-      id: map['id'] as int,
+      id: map['id'] ?? 0,
       nodeId: map['node_id'] ?? '',
       name: map['name'] ?? '',
       fullName: map['full_name'] ?? '',

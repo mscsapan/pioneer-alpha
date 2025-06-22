@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../../logic/cubit/repo_search/repo_search_cubit.dart';
 
+// ignore: must_be_immutable
 class OwnerModel extends Equatable {
   final String login;
   final int id;
@@ -34,6 +35,7 @@ class OwnerModel extends Equatable {
    int perPage;
    bool isListEmpty;
   final bool siteAdmin;
+  final SortBy sortBy;
   final RepoSearchState repoState;
 
    OwnerModel({
@@ -63,6 +65,7 @@ class OwnerModel extends Equatable {
     this.perPage = 50,
     this.isListEmpty = false,
     this.siteAdmin = false,
+    this.sortBy = SortBy.stars,
     this.repoState = const RepoSearchInitial(),
   });
 
@@ -93,6 +96,7 @@ class OwnerModel extends Equatable {
     int? perPage,
     bool? isListEmpty,
     bool? siteAdmin,
+    SortBy? sortBy,
     RepoSearchState? repoState,
   }) {
     return OwnerModel(
@@ -121,6 +125,7 @@ class OwnerModel extends Equatable {
       initialPage: initialPage ?? this.initialPage,
       isListEmpty: isListEmpty ?? this.isListEmpty,
       siteAdmin: siteAdmin ?? this.siteAdmin,
+      sortBy: sortBy ?? this.sortBy,
       repoState: repoState ?? this.repoState,
     );
   }
@@ -214,6 +219,7 @@ class OwnerModel extends Equatable {
       perPage,
       isListEmpty,
       siteAdmin,
+      sortBy,
       repoState,
     ];
   }

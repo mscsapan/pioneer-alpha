@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../logic/bloc/internet_status/internet_status_bloc.dart';
+import '../../utils/k_images.dart';
 import '/data/models/repo_item/owner_model.dart';
 import '/presentation/routes/route_names.dart';
 import '/presentation/widgets/circle_image.dart';
@@ -35,7 +36,7 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
   _initState() {
     repoCubit = context.read<RepoSearchCubit>();
 
-    Future.microtask(()=>repoCubit.getRepoSearchList());
+    Future.microtask(()=>repoCubit.loadOnlineOfflineRepo());
 
   }
 
@@ -46,18 +47,22 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
       appBar: AppBar(title: CustomText(text: 'All Flutter'),
           automaticallyImplyLeading: false,actions: [
             IconButton(
-              icon: const Icon(Icons.sort),
+              tooltip: 'Sort by stars',
+              // icon: Icon(Icons.star, color: Colors.amber),
+              icon: _buildSortIcon(SortBy.stars),
               onPressed: () => repoCubit.sortRepos(SortBy.stars),
             ),
-          IconButton(
-              icon: const Icon(Icons.access_time),
+            IconButton(
+              tooltip: 'Sort by updated time',
+              // icon: Icon(Icons.update),
+              icon: _buildSortIcon(SortBy.updated),
               onPressed: () => repoCubit.sortRepos(SortBy.updated),
             ),
-        ],),
+          ],),
       // appBar: CustomGradientAppBar(title: 'Quote Request',isShowBB: widget.isShow,actions:  FilterQuote(),),
       body: PageRefresh(
         onRefresh: () async {
-          repoCubit.getRepoSearchList();
+          repoCubit.loadOnlineOfflineRepo();
         },
         child: MultiBlocListener(
           listeners: [
@@ -101,13 +106,40 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
               if (repoCubit.repositories?.isNotEmpty ?? false) {
                 return LoadedRepoItems(items: repoCubit.repositories);
               } else {
-                return EmptyWidget(
-                    image: '', text: 'No Result found', isSliver: false);
+                return EmptyWidget(image: KImages.emptyRepo, text: 'No Result found', isSliver: false);
               }
             },
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSortIcon(SortBy type) {
+
+    IconData icon;
+    switch (type) {
+      case SortBy.stars:
+        icon = Icons.star;
+        break;
+      case SortBy.updated:
+        icon = Icons.update;
+        break;
+    }
+
+    return BlocBuilder<RepoSearchCubit, OwnerModel>(
+      builder: (context, state) {
+        final isActive = state.sortBy == type;
+        final arrowIcon = repoCubit.isDescending ? Icons.arrow_downward : Icons.arrow_upward;
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: isActive ? Colors.amber : Colors.grey),
+            if (isActive) Icon(arrowIcon, size: 16.0),
+          ],
+        );
+      },
     );
   }
 }
@@ -120,6 +152,9 @@ class LoadedRepoItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final imgs = items?.map((e) => e?.owner?.avatarUrl).toList();
+    // debugPrint('RepoSearchScreen imgs: $imgs');
+
     if(items?.isNotEmpty??false){
       return ListView.builder(
           itemCount: items?.length,
@@ -134,7 +169,7 @@ class LoadedRepoItems extends StatelessWidget {
 
               },
               child: Card(
-                margin: Utils.symmetric(h: 10.0,v: 12.0),
+                margin: Utils.symmetric(h: 14.0,v: 6.0),
                 shape: RoundedRectangleBorder(borderRadius: Utils.borderRadius(r: 2.0)),
                 child: Padding(
                   padding: Utils.symmetric(h: 12.0,v: 10.0),
@@ -147,14 +182,15 @@ class LoadedRepoItems extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Flexible(child: CustomText(text: result?.name??'',fontSize: 16.0,fontWeight: FontWeight.w600,)),
+                            Flexible(child: CustomText(text: result?.name??'',fontSize: 16.0,fontWeight: FontWeight.w600,maxLine: 2)),
                             Row(
                               children: [
-                                Icon(Icons.star,size: 18.0,color: Colors.yellow,),
-                                CustomText(text: '${result?.stargazersCount}'),
+                                Icon(Icons.star,size: 18.0,color: Colors.amber),
+                                CustomText(text: Utils.priceSeparator(result?.stargazersCount??0),fontWeight: FontWeight.w500),
+                                // CustomText(text: '${result?.stargazersCount}'),
                               ],
                             ),
-                            CustomText(text: '${result?.owner?.name}'),
+                            // CustomText(text: '${result?.owner?.name}'),
                           ],
                         ),
                       ),
@@ -165,8 +201,7 @@ class LoadedRepoItems extends StatelessWidget {
             );
           },);
     }else{
-      return EmptyWidget(image: '', text: 'No Result found',isSliver: false);
+      return EmptyWidget(image: KImages.emptyRepo, text: 'No Result found',isSliver: false);
     }
   }
 }
-

@@ -129,6 +129,19 @@ class Utils {
     return DateFormat.jm().format(dateTime);
   }
 
+  static String priceSeparator(int value, {String locale = 'en_US', String symbol = '', int radix = 0}) {
+    try {
+      final formatter = NumberFormat.currency(
+        locale: locale,
+        symbol: symbol,
+        decimalDigits: radix,
+      );
+      return formatter.format(value);
+    } catch (e) {
+      return value.toStringAsFixed(radix);
+    }
+  }
+
 
 
   static String convertToAgo(String? time) {
