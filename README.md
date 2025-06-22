@@ -37,8 +37,8 @@ A beautiful and lightweight Flutter app to explore trending GitHub repositories 
 
 ---
 
-## 📦 APK Link
-- <a href="https://drive.google.com/drive/folders/1AnF_m4mhzPjPQx3ZQRYA9dmowo2UnXd7?usp=sharing" target="_blank">APK LINK</a>
+## 📦 Output
+- <a href="https://drive.google.com/drive/folders/1AnF_m4mhzPjPQx3ZQRYA9dmowo2UnXd7?usp=sharing" target="_blank">APK & Output</a>
 ---
 
 
