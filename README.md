@@ -37,19 +37,25 @@ A beautiful and lightweight Flutter app to explore trending GitHub repositories 
 
 ---
 
+## 📦 APK Link
+- <a href="https://drive.google.com/drive/folders/1AnF_m4mhzPjPQx3ZQRYA9dmowo2UnXd7?usp=sharing" target="_blank">APK LINK</a>
+---
+
+
 ## 🛠️ How to Run the App
 
 > ⚠️ Requires Flutter SDK installed. [Get Flutter →](https://flutter.dev/docs/get-started/install)
 
 ### 1. Clone the Repository
 
-git clone https://github.com/your-username/flutter-repo-explorer.git </br>
+git clone https://github.com/mscsapan/pioneer-alpha.git </br>
 
-cd flutter-repo-explorer
+`cd flutter-repo-explorer`
 
 
 ## 📦 Project Architecture
 This Flutter project follows a clean and modular MVC-inspired architecture, with a clear separation between data, business logic, and UI layers. This structure ensures better scalability, testability, and maintainability.<br/>
+
 <strong>lib/</strong> &nbsp;&nbsp;<br/>
 ├── <strong>data/</strong> &nbsp;&nbsp;# Handles all data-related logic and external communication<br/>
 │ ├── <strong>data_provider/</strong> &nbsp;&nbsp;# Manages data flow from remote/local sources<br/>

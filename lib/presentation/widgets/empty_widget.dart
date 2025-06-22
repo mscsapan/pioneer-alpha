@@ -36,10 +36,9 @@ class EmptyWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              CustomImage(path: image),
+              CustomImage(path: image,height: 150.0,width: 150.0),
               Utils.verticalSpace(space),
-              CustomText(
-                  text: text, fontSize: 22.0, fontWeight: FontWeight.w700),
+              CustomText(text: text, fontSize: 18.0, fontWeight: FontWeight.w600),
               child,
             ],
           ),
@@ -53,9 +52,9 @@ class EmptyWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            CustomImage(path: image),
+            CustomImage(path: image,height: 150.0,width: 150.0),
             Utils.verticalSpace(space),
-            CustomText(text: text, fontSize: 22.0, fontWeight: FontWeight.w700),
+            CustomText(text: text, fontSize: 18.0, fontWeight: FontWeight.w600),
             child,
           ],
         ),

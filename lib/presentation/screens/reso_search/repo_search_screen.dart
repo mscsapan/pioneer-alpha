@@ -149,7 +149,7 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
                 if (repoCubit.repositories?.isNotEmpty ?? false) {
                   return LoadedRepoItems(items: repoCubit.repositories);
                 } else {
-                  return EmptyWidget(image: KImages.emptyRepo, text: 'No Result found', isSliver: false);
+                  return EmptyWidget(image: KImages.emptyRepo, text: 'No Repo found', isSliver: false);
                 }
               },
             ),
@@ -239,7 +239,7 @@ class LoadedRepoItems extends StatelessWidget {
                               spacing: 4.0,
                               children: [
                                 Icon(Icons.update,size: 18.0,color: Colors.grey),
-                                CustomText(text: Utils.timeWithData(result?.updatedAt??'')),                              ],
+                                CustomText(text: Utils.timeWithData(result?.updatedAt??''),fontWeight: FontWeight.w500,),                              ],
                             ),
 
                           ],
@@ -252,7 +252,7 @@ class LoadedRepoItems extends StatelessWidget {
             );
           },);
     }else{
-      return EmptyWidget(image: KImages.emptyRepo, text: 'No Result found',isSliver: false);
+      return EmptyWidget(image: KImages.emptyRepo, text: 'No Repo found', isSliver: false);
     }
   }
 }
