@@ -34,7 +34,8 @@ class OwnerModel extends Equatable {
    int initialPage;
    int perPage;
    bool isListEmpty;
-  final bool siteAdmin;
+   bool siteAdmin;
+   bool isDescending;
   final SortBy sortBy;
   final RepoSearchState repoState;
 
@@ -64,7 +65,8 @@ class OwnerModel extends Equatable {
     this.initialPage = 1,
     this.perPage = 50,
     this.isListEmpty = false,
-    this.siteAdmin = false,
+    this.siteAdmin = true,
+    this.isDescending = true,
     this.sortBy = SortBy.stars,
     this.repoState = const RepoSearchInitial(),
   });
@@ -96,6 +98,7 @@ class OwnerModel extends Equatable {
     int? perPage,
     bool? isListEmpty,
     bool? siteAdmin,
+    bool? isDescending,
     SortBy? sortBy,
     RepoSearchState? repoState,
   }) {
@@ -125,6 +128,7 @@ class OwnerModel extends Equatable {
       initialPage: initialPage ?? this.initialPage,
       isListEmpty: isListEmpty ?? this.isListEmpty,
       siteAdmin: siteAdmin ?? this.siteAdmin,
+      isDescending: isDescending ?? this.isDescending,
       sortBy: sortBy ?? this.sortBy,
       repoState: repoState ?? this.repoState,
     );
@@ -219,6 +223,7 @@ class OwnerModel extends Equatable {
       perPage,
       isListEmpty,
       siteAdmin,
+      isDescending,
       sortBy,
       repoState,
     ];

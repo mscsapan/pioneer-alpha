@@ -50,28 +50,31 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
               tooltip: 'Sort by stars',
               // icon: Icon(Icons.star, color: Colors.amber),
               icon: _buildSortIcon(SortBy.stars),
-              onPressed: () => repoCubit.sortRepos(SortBy.stars),
+              onPressed: () => repoCubit.sortRepos(SortBy.stars,toggle: true),
             ),
             IconButton(
               tooltip: 'Sort by updated time',
               // icon: Icon(Icons.update),
               icon: _buildSortIcon(SortBy.updated),
-              onPressed: () => repoCubit.sortRepos(SortBy.updated),
+              onPressed: () => repoCubit.sortRepos(SortBy.updated,toggle: true),
             ),
           ],),
       // appBar: CustomGradientAppBar(title: 'Quote Request',isShowBB: widget.isShow,actions:  FilterQuote(),),
       body: PageRefresh(
-        onRefresh: () async {
-          repoCubit.loadOnlineOfflineRepo();
+        onRefresh:  ()  async {
+          repoCubit..initState()..getRepoSearchList();
+          // repoCubit.loadOnlineOfflineRepo();
         },
         child: MultiBlocListener(
           listeners: [
             BlocListener<InternetStatusBloc, InternetStatusState>(
               listener: (context, state) {
                  if (state is InternetStatusLostState) {
-                   Utils.errorSnackBar(context, state.message,2000);
+                   // Utils.errorSnackBar(context, state.message,2000);
+                   repoCubit.addConnectionType(false);
                   } else if (state is InternetStatusBackState) {
-                    Utils.showSnackBar(context, state.message);
+                   repoCubit.addConnectionType(true);
+                    // Utils.showSnackBar(context, state.message);
                   }
 
               },
@@ -82,6 +85,9 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
                 if (state is RepoSearchError) {
                   if (state.statusCode == 503) {
                     repoCubit.getRepoSearchList();
+                  }
+                  if (state.statusCode == 10061) {
+                    Utils.errorSnackBar(context, state.message);
                   }
                 }
               },
@@ -97,7 +103,9 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
                   return LoadedRepoItems(items: repoCubit.repositories);
                 } else if (state.statusCode == 403) {
                   return LoadedRepoItems(items: repoCubit.repositories);
-                } else {
+                } else if(state.statusCode == 10061) {
+                  return LoadedRepoItems(items: repoCubit.repositories);
+                }else{
                   return FetchErrorText(text: state.message);
                 }
               } else if (state is RepoSearchLoaded) {
@@ -130,7 +138,7 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
     return BlocBuilder<RepoSearchCubit, OwnerModel>(
       builder: (context, state) {
         final isActive = state.sortBy == type;
-        final arrowIcon = repoCubit.isDescending ? Icons.arrow_downward : Icons.arrow_upward;
+        final arrowIcon = state.isDescending ? Icons.arrow_downward : Icons.arrow_upward;
 
         return Row(
           mainAxisSize: MainAxisSize.min,

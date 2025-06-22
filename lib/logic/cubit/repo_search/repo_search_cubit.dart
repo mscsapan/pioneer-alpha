@@ -23,8 +23,6 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
       : _repository = repository,
         super(OwnerModel());
 
-  bool isDescending = true;
-
   List<RepoItemModel> ? repositories = [];
 
   List<RepoItemModel> ? tempRepos = [];
@@ -33,38 +31,54 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
 
   void addType(String name)=>emit(state.copyWith(userViewType: name));
 
+  void addConnectionType(bool value){
+    emit(state.copyWith(siteAdmin: value));
+    debugPrint('connection type ${state.siteAdmin}');
+  }
+
 
   Future<void> getRepoSearchList() async {
-    debugPrint('called getRepoSearchList');
-    final url = Uri.parse(RemoteUrls.repoList).replace(queryParameters: {
-      'q': 'flutter',
-      'per_page': state.perPage.toString(),
-      'sort': 'stars',
-      'order': 'desc'
-    });
+    final connectivityResult = await Connectivity().checkConnectivity();
+    final hasInternet = !connectivityResult.contains(ConnectivityResult.none);
 
-    debugPrint('url $url');
-    emit(state.copyWith(repoState: const RepoSearchLoading()));
+    if(hasInternet){
+      debugPrint('called getRepoSearchList');
+      final url = Uri.parse(RemoteUrls.repoList).replace(queryParameters: {
+        'q': 'flutter',
+        'per_page': state.perPage.toString(),
+        'sort': 'stars',
+        'order': 'desc'
+      });
 
-    final result = await _repository.getRepoItems(url);
-    result.fold(
-          (failure) {
-        final error = RepoSearchError(failure.message, failure.statusCode);
-        emit(state.copyWith(repoState: error));
-      },
-          (success) async {
-        repositories = success;
+      debugPrint('url $url');
+      emit(state.copyWith(repoState: const RepoSearchLoading()));
 
-        final prefs = await SharedPreferences.getInstance();
+      final result = await _repository.getRepoItems(url);
+      result.fold(
+            (failure) {
+          final error = RepoSearchError(failure.message, failure.statusCode);
+          emit(state.copyWith(repoState: error));
+        },
+            (success) async {
+          repositories = success;
 
-        final jsonList = repositories?.map((e) => e.toJson()).toList();
+          final prefs = await SharedPreferences.getInstance();
 
-        await prefs.setString('cached_repos', jsonEncode(jsonList));
+          final jsonList = repositories?.map((e) => e.toJson()).toList();
 
-        final loaded = RepoSearchLoaded(repositories);
-        emit(state.copyWith(repoState: loaded));
-      },
-    );
+          await prefs.remove('cached_repos');
+
+          await prefs.setString('cached_repos', jsonEncode(jsonList));
+
+          final loaded = RepoSearchLoaded(repositories);
+          emit(state.copyWith(repoState: loaded));
+        },
+      );
+    }else{
+      final error = RepoSearchError('No Internet connection', 10061);
+      emit(state.copyWith(repoState: error));
+      //debugPrint('no internet');
+    }
   }
 
   Future<void> getRepoSearchListFromCache() async {
@@ -76,6 +90,14 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
 
     final jsonString = prefs.getString('cached_repos');
 
+    final cacheDescending = prefs.getBool('sort_by_star') ?? true;
+
+    final cacheUpdated = prefs.getBool('sort_by_updated') ?? false;
+
+    final updatedAt = cacheUpdated ? SortBy.updated : SortBy.stars;
+
+    debugPrint('cacheDescending: $cacheDescending, updatedAt: $updatedAt');
+
     if (jsonString != null) {
 
       final decoded = jsonDecode(jsonString) as List;
@@ -85,8 +107,12 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
       // final imgs = repositories?.map((e) => e.owner?.avatarUrl).toList();
       // debugPrint('caches imgs: $imgs');
 
-      final loaded = RepoSearchLoaded(repositories);
-      emit(state.copyWith(repoState: loaded));
+      // final loaded = RepoSearchLoaded(repositories);
+      // emit(state.copyWith(isDescending: cacheDescending, sortBy: updatedAt ,repoState: loaded));
+
+      emit(state.copyWith(isDescending: cacheDescending, sortBy: updatedAt));
+
+      sortRepos(updatedAt);
     } else {
       emit(state.copyWith(repoState: RepoSearchError('No cached data found', 404)));
     }
@@ -113,30 +139,36 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
   }
 
 
-  void sortRepos(SortBy sortBy) {
-    if (repositories == null || (repositories?.isEmpty??false)) return;
+  void sortRepos(SortBy sortBy, {bool toggle = false}) {
+    if (repositories == null || (repositories?.isEmpty ?? false)) return;
 
-    isDescending = !isDescending;
+    final newDescending = toggle ? !state.isDescending : state.isDescending;
 
-    tempRepos = List<RepoItemModel>.from(repositories??[]);
+    tempRepos = List<RepoItemModel>.from(repositories ?? []);
+
     tempRepos?.sort((a, b) {
       int comparison;
       if (sortBy == SortBy.stars) {
         comparison = a.stargazersCount.compareTo(b.stargazersCount);
-        //final starFilter = tempRepos?.map((e)=>e.stargazersCount).toList();
-        // debugPrint('starFilter $starFilter');
       } else {
         comparison = a.updatedAt.compareTo(b.updatedAt);
-        //final updateFilter = tempRepos?.map((e)=>e.updatedAt).toList();
-        // debugPrint('updateFilter $updateFilter');
       }
-      return isDescending ? -comparison : comparison;
+      return newDescending ? -comparison : comparison;
     });
 
-    emit(state.copyWith(sortBy: sortBy,repoState: RepoSearchLoaded(tempRepos)));
+    emit(state.copyWith(isDescending: newDescending, sortBy: sortBy, repoState: RepoSearchLoaded(tempRepos)));
+
+    storeCachedSort();
   }
 
+  Future<void> storeCachedSort()async{
 
+    final prefs = await SharedPreferences.getInstance();
+
+    final isUpdated = state.sortBy == SortBy.updated;
+
+     prefs..setBool('sort_by_star', state.isDescending)..setBool('sort_by_updated', isUpdated);
+  }
 
   Future<void> getOwnerDetail() async {
 
@@ -152,17 +184,28 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
         emit(state.copyWith(repoState: error));
       },
           (success) {
-            detail = success;
-            final loaded = RepoSearchDetailLoaded(success);
-            emit(state.copyWith(repoState: loaded));
+        detail = success;
+        final loaded = RepoSearchDetailLoaded(success);
+        emit(state.copyWith(repoState: loaded));
       },
     );
   }
 
-
   void initPage() {
     emit(state.copyWith(initialPage: 1, isListEmpty: false));
   }
+
+  void initState() async{
+
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove('sort_by_star');
+
+    await prefs.remove('sort_by_updated');
+
+    emit(state.copyWith(isDescending: true,sortBy: SortBy.stars,repoState: RepoSearchInitial()));
+  }
+
 }
 
 enum SortBy { stars, updated }
