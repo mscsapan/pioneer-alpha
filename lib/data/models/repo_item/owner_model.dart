@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 
 import '../../../logic/cubit/repo_search/repo_search_cubit.dart';
+import 'repo_item_model.dart';
 
 // ignore: must_be_immutable
 class OwnerModel extends Equatable {
@@ -37,6 +38,8 @@ class OwnerModel extends Equatable {
    bool siteAdmin;
    bool isDescending;
   final SortBy sortBy;
+  final RepoItemModel ? repoItem;
+
   final RepoSearchState repoState;
 
    OwnerModel({
@@ -68,6 +71,7 @@ class OwnerModel extends Equatable {
     this.siteAdmin = true,
     this.isDescending = true,
     this.sortBy = SortBy.stars,
+    this.repoItem,
     this.repoState = const RepoSearchInitial(),
   });
 
@@ -100,6 +104,7 @@ class OwnerModel extends Equatable {
     bool? siteAdmin,
     bool? isDescending,
     SortBy? sortBy,
+    RepoItemModel ? repoItem,
     RepoSearchState? repoState,
   }) {
     return OwnerModel(
@@ -130,6 +135,7 @@ class OwnerModel extends Equatable {
       siteAdmin: siteAdmin ?? this.siteAdmin,
       isDescending: isDescending ?? this.isDescending,
       sortBy: sortBy ?? this.sortBy,
+      repoItem: repoItem ?? this.repoItem,
       repoState: repoState ?? this.repoState,
     );
   }
@@ -195,7 +201,7 @@ class OwnerModel extends Equatable {
   bool get stringify => true;
 
   @override
-  List<Object> get props {
+  List<Object?> get props {
     return [
       login,
       id,
@@ -225,6 +231,7 @@ class OwnerModel extends Equatable {
       siteAdmin,
       isDescending,
       sortBy,
+      repoItem,
       repoState,
     ];
   }

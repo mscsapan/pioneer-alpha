@@ -14,6 +14,7 @@ class CustomText extends StatelessWidget {
     this.height = 1.4,
     this.maxLine = 6,
     this.color = blackColor,
+    this.decorationColor,
     this.decoration = TextDecoration.none,
     this.overflow = TextOverflow.ellipsis,
     this.textAlign = TextAlign.start,
@@ -22,6 +23,7 @@ class CustomText extends StatelessWidget {
   });
   final String text;
   final Color color;
+  final Color? decorationColor;
   final double fontSize;
   final FontWeight fontWeight;
   final double height;
@@ -48,6 +50,7 @@ class CustomText extends StatelessWidget {
             color: color,
             height: height.h,
             decoration: decoration,
+            decorationColor: decorationColor?? blackColor
           ),
         ),
       );
@@ -64,6 +67,7 @@ class CustomText extends StatelessWidget {
           fontFamily: fontFamily,
           height: height.h,
           decoration: decoration,
+            decorationColor: decorationColor?? blackColor
         ),
       );
     }

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../logic/bloc/internet_status/internet_status_bloc.dart';
-import '../../utils/k_images.dart';
 import '/data/models/repo_item/owner_model.dart';
 import '/presentation/routes/route_names.dart';
 import '/presentation/widgets/circle_image.dart';
 import '/presentation/widgets/custom_text.dart';
 import '../../../data/models/repo_item/repo_item_model.dart';
+import '../../../logic/bloc/internet_status/internet_status_bloc.dart';
 import '../../../logic/cubit/repo_search/repo_search_cubit.dart';
+import '../../utils/k_images.dart';
 import '../../utils/utils.dart';
 import '../../widgets/empty_widget.dart';
 import '../../widgets/fetch_error_text.dart';
-import '../../widgets/loading_widget.dart';
+import '../../widgets/lazy_loading.dart';
 import '../../widgets/page_refresh.dart';
 
 class RepoSearchScreen extends StatefulWidget {
@@ -44,7 +44,7 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: CustomText(text: 'All Flutter'),
+      appBar: AppBar(title: CustomText(text: 'All Repositories',fontWeight: FontWeight.w600,fontSize: 16.0),
           automaticallyImplyLeading: false,actions: [
             IconButton(
               tooltip: 'Sort by stars',
@@ -97,7 +97,8 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
             builder: (context, service) {
               final state = service.repoState;
               if (state is RepoSearchLoading) {
-                return const LoadingWidget();
+                return const LazyLoading();
+                // return const LoadingWidget();
               } else if (state is RepoSearchError) {
                 if (state.statusCode == 503) {
                   return LoadedRepoItems(items: repoCubit.repositories);
@@ -166,15 +167,13 @@ class LoadedRepoItems extends StatelessWidget {
     if(items?.isNotEmpty??false){
       return ListView.builder(
           itemCount: items?.length,
+          padding: Utils.only(bottom: 20.0),
           itemBuilder: (context,index){
             final result  = items?[index];
             return GestureDetector(
               onTap: (){
-                if(result?.owner?.login.isNotEmpty??false){
-                context.read<RepoSearchCubit>().addType(result?.owner?.login??'');
+                context.read<RepoSearchCubit>().addOwner(result);
                 Navigator.pushNamed(context, RouteNames.reposDetailScreen);
-                }
-
               },
               child: Card(
                 margin: Utils.symmetric(h: 14.0,v: 6.0),
@@ -183,7 +182,9 @@ class LoadedRepoItems extends StatelessWidget {
                   padding: Utils.symmetric(h: 12.0,v: 10.0),
                   child: Row(
                     children: [
-                      CircleImage(image: result?.owner?.avatarUrl??'',size: 50.0,),
+                      Hero(
+                          tag: result?.id??0,
+                          child: CircleImage(image: result?.owner?.avatarUrl??'',size: 50.0,)),
                       Utils.horizontalSpace(20.0),
                       Expanded(
                         child: Column(

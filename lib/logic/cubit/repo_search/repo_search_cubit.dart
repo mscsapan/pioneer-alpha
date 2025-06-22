@@ -31,10 +31,10 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
 
   void addType(String name)=>emit(state.copyWith(userViewType: name));
 
-  void addConnectionType(bool value){
-    emit(state.copyWith(siteAdmin: value));
-    debugPrint('connection type ${state.siteAdmin}');
-  }
+  void addConnectionType(bool value)=>emit(state.copyWith(siteAdmin: value));
+
+  void addOwner(RepoItemModel? repoItem)=>emit(state.copyWith(repoItem: repoItem));
+
 
 
   Future<void> getRepoSearchList() async {
@@ -42,7 +42,7 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
     final hasInternet = !connectivityResult.contains(ConnectivityResult.none);
 
     if(hasInternet){
-      debugPrint('called getRepoSearchList');
+      //debugPrint('called getRepoSearchList');
       final url = Uri.parse(RemoteUrls.repoList).replace(queryParameters: {
         'q': 'flutter',
         'per_page': state.perPage.toString(),
@@ -50,7 +50,7 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
         'order': 'desc'
       });
 
-      debugPrint('url $url');
+      //debugPrint('url $url');
       emit(state.copyWith(repoState: const RepoSearchLoading()));
 
       final result = await _repository.getRepoItems(url);
@@ -96,7 +96,7 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
 
     final updatedAt = cacheUpdated ? SortBy.updated : SortBy.stars;
 
-    debugPrint('cacheDescending: $cacheDescending, updatedAt: $updatedAt');
+    //debugPrint('cacheDescending: $cacheDescending, updatedAt: $updatedAt');
 
     if (jsonString != null) {
 
@@ -168,27 +168,6 @@ class RepoSearchCubit extends Cubit<OwnerModel> {
     final isUpdated = state.sortBy == SortBy.updated;
 
      prefs..setBool('sort_by_star', state.isDescending)..setBool('sort_by_updated', isUpdated);
-  }
-
-  Future<void> getOwnerDetail() async {
-
-    final url = Uri.parse(RemoteUrls.detail(state.userViewType));
-    debugPrint('url $url');
-
-    emit(state.copyWith(repoState: const RepoSearchDetailLoading()));
-
-    final result = await _repository.getOwnerDetails(url);
-    result.fold(
-          (failure) {
-        final error = RepoSearchDetailError(failure.message, failure.statusCode);
-        emit(state.copyWith(repoState: error));
-      },
-          (success) {
-        detail = success;
-        final loaded = RepoSearchDetailLoaded(success);
-        emit(state.copyWith(repoState: loaded));
-      },
-    );
   }
 
   void initPage() {

@@ -95,8 +95,7 @@ class Utils {
   static String timeWithData(String data, [bool timeAndDate = true]) {
     if (timeAndDate) {
       DateTime dateTime = DateTime.parse(data);
-      String formattedDate =
-          DateFormat('h:mm a - MMM d, yyyy').format(dateTime);
+      String formattedDate = DateFormat('MM-dd-yyyy HH:mm').format(dateTime);
       return formattedDate;
     } else {
       DateTime dateTime = DateTime.parse(data);
