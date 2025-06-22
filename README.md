@@ -1,16 +1,8 @@
 # pioneer_alpha
 
-
-
 # 🚀 Flutter GitHub Repository Explorer
 
 A beautiful and lightweight Flutter app to explore trending GitHub repositories with offline support, dynamic sorting, and smooth UI animations using shimmer and caching.
-
----
-
-## 📸 Demo
-
-🎥 [Click to watch the demo video](https://github.com/BrainStation23HR/Flutter_Ali/blob/feature/assets/output.mp4)
 
 ---
 
@@ -51,13 +43,14 @@ A beautiful and lightweight Flutter app to explore trending GitHub repositories 
 
 ### 1. Clone the Repository
 
-git clone https://github.com/your-username/flutter-repo-explorer.git
+git clone https://github.com/your-username/flutter-repo-explorer.git </br>
+
 cd flutter-repo-explorer
 
 
 ## 📦 Project Architecture
 This Flutter project follows a clean and modular MVC-inspired architecture, with a clear separation between data, business logic, and UI layers. This structure ensures better scalability, testability, and maintainability.
-
+lib/
 ├── <strong>data/</strong> &nbsp;&nbsp;# Handles all data-related logic and external communication<br/>
 │ ├── <strong>data_provider/</strong> &nbsp;&nbsp;# Manages data flow from remote/local sources<br/>
 │ │ ├── <strong>local_data_source/</strong> &nbsp;&nbsp;# Manages local cache or persistent storage (e.g., SharedPreferences, SQLite)<br/>
