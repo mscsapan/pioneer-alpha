@@ -1,6 +1,61 @@
 # pioneer_alpha
 
-<strong>📁 Project Architecture (MVC)</strong><br/>
+
+
+# 🚀 Flutter GitHub Repository Explorer
+
+A beautiful and lightweight Flutter app to explore trending GitHub repositories with offline support, dynamic sorting, and smooth UI animations using shimmer and caching.
+
+---
+
+## 📸 Demo
+
+🎥 [Click to watch the demo video](https://github.com/BrainStation23HR/Flutter_Ali/blob/feature/assets/output.mp4)
+
+---
+
+## 🌟 Features
+
+- 🔍 Browse GitHub repositories based on keywords (default: `flutter`)
+- ⭐ Sort by stars or by `last updated` time
+- 📶 Offline support with cached data using `shared_preferences`
+- 🎨 Shimmer loading animations while fetching data
+- 📷 Cached network images with fallbacks
+- 📦 Clean architecture with Cubit/BLoC for state management
+- 📱 Responsive UI using `flutter_screenutil`
+
+---
+
+## 📦 Dependencies
+
+| Package                | Purpose                                      |
+|------------------------|----------------------------------------------|
+| `flutter_bloc`         | State management using BLoC & Cubit          |
+| `equatable`            | Object comparison in Bloc/Cubit              |
+| `shared_preferences`   | Local data caching                           |
+| `dartz`                | Functional programming utils (Either)        |
+| `http`                 | REST API calls                               |
+| `cached_network_image` | Image caching                                |
+| `connectivity_plus`    | Check internet availability                  |
+| `flutter_svg`          | Display SVG images                           |
+| `flutter_screenutil`   | Responsive design support                    |
+| `intl`                 | Date/time formatting                         |
+| `google_fonts`         | Use Google Fonts                             |
+| `shimmer`              | Skeleton loader animations                   |
+
+---
+
+## 🛠️ How to Run the App
+
+> ⚠️ Requires Flutter SDK installed. [Get Flutter →](https://flutter.dev/docs/get-started/install)
+
+### 1. Clone the Repository
+
+git clone https://github.com/your-username/flutter-repo-explorer.git
+cd flutter-repo-explorer
+
+
+## 📦 Project Architecture
 This Flutter project follows a clean and modular MVC-inspired architecture, with a clear separation between data, business logic, and UI layers. This structure ensures better scalability, testability, and maintainability.
 
 ├── <strong>data/</strong> &nbsp;&nbsp;# Handles all data-related logic and external communication<br/>
